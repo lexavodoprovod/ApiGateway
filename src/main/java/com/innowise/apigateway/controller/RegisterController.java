@@ -14,11 +14,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
+import static com.innowise.apigateway.constant.Routes.*;
+import static com.innowise.apigateway.constant.ControllerMessage.*;
+
 @RestController
 @RequestMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class RegisterController {
-
 
     private final WebClient.Builder webClientBuilder;
 
@@ -29,31 +31,29 @@ public class RegisterController {
 
         return webClient
                 .post()
-                .uri("lb://user-service/users")
+                .uri(CREATE_USER_EUREKA_PATH)
                 .bodyValue(registrationDto.toUserPart())
                 .retrieve()
                 .bodyToMono(UserResponseDto.class)
                 .flatMap(userResponse -> {
-                    System.out.println(userResponse.toString());
                    Long userId = userResponse.getId();
 
                    return webClient.post()
-                           .uri("lb://auth-service/auth/save")
+                           .uri(SAVE_CREDENTIAL_EUREKA_PATH)
                            .bodyValue(registrationDto.toAuthPart(userId))
                            .retrieve()
                            .toBodilessEntity()
-                           .thenReturn(ResponseEntity.ok("Registered Successfully!"))
+                           .thenReturn(ResponseEntity.ok(REGISTER_SUCCESS.formatted(userId)))
 
-                           .onErrorResume(authError -> {
-                               System.err.println("AuthService error: " + authError.getMessage());
-                               return webClient.delete()
-                                       .uri("lb://user-service/users/{id}", userId)
+                           .onErrorResume(authError ->
+                               webClient.delete()
+                                       .uri(DELETE_USER_EUREKA_PATH, userId)
                                        .retrieve()
                                        .toBodilessEntity()
                                        .then(Mono.error(new ResponseStatusException(
-                                               HttpStatus.INTERNAL_SERVER_ERROR, "Error in AuthService, all data was deleted from UserService"
-                                       )));
-                           });
+                                               HttpStatus.INTERNAL_SERVER_ERROR, AUTH_SERVICE_ERROR
+                                       )))
+                           );
                 });
     }
 

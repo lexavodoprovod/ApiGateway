@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 
 @Component
 @RequiredArgsConstructor
-public class AuthenticationFilter extends AbstractGatewayFilterFactory {
+public class AuthenticationFilter extends AbstractGatewayFilterFactory<Object> {
 
     private static final String JWT_HEADER_PREFIX = "Bearer ";
 
@@ -43,7 +43,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory {
 
             return Mono.fromRunnable(() -> jwtUtil.validateToken(token))
                     .then(chain.filter(exchange))
-                    .onErrorResume(e -> Mono.error(e));
+                    .onErrorResume(Mono::error);
         });
     }
 }

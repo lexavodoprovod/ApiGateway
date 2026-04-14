@@ -37,7 +37,7 @@ class AuthenticationFilterTest {
     @InjectMocks
     private AuthenticationFilter filter;
 
-    private final String VALID_TOKEN = "valid.jwt.token";
+    private static final String VALID_TOKEN = "valid.jwt.token";
 
     @BeforeEach
     void setup() {
