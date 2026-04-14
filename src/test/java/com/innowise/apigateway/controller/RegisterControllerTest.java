@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static com.innowise.apigateway.constant.ControllerMessage.*;
 
 class RegisterControllerTest {
 
@@ -63,7 +64,9 @@ class RegisterControllerTest {
                 .username("username")
                 .password("password")
                 .build();
-        UserResponseDto userResponse = new UserResponseDto(100L);
+
+        Long responseId = 100L;
+        UserResponseDto userResponse = new UserResponseDto(responseId);
 
 
         mockBackEnd.enqueue(new MockResponse()
@@ -77,7 +80,7 @@ class RegisterControllerTest {
                 .bodyValue(dto)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(String.class).isEqualTo("Registered Successfully!");
+                .expectBody(String.class).isEqualTo(REGISTER_SUCCESS.formatted(responseId));
 
         assertEquals("/users", mockBackEnd.takeRequest().getPath());
         assertEquals("/auth/save", mockBackEnd.takeRequest().getPath());
