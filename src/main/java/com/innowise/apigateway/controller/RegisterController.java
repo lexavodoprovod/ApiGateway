@@ -18,17 +18,17 @@ import static com.innowise.apigateway.constant.Routes.*;
 import static com.innowise.apigateway.constant.ControllerMessage.*;
 
 @RestController
-@RequestMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
-@RequiredArgsConstructor
+@RequestMapping(value = "/api/v1/auth/register", produces = MediaType.APPLICATION_JSON_VALUE)
 public class RegisterController {
 
-    private final WebClient.Builder webClientBuilder;
+    private final WebClient webClient;
+
+    public RegisterController(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.build();
+    }
 
     @PostMapping
     public Mono<ResponseEntity<String>> register(@RequestBody RegistrationDto registrationDto) {
-
-        WebClient webClient = webClientBuilder.build();
-
         return webClient
                 .post()
                 .uri(CREATE_USER_EUREKA_PATH)

@@ -19,6 +19,8 @@ import static com.innowise.apigateway.constant.ControllerMessage.*;
 
 class RegisterControllerTest {
 
+    private static final String CONTROLLER_PATH = "/api/v1/auth/register";
+
     private static MockWebServer mockBackEnd;
     private WebTestClient webTestClient;
 
@@ -76,7 +78,7 @@ class RegisterControllerTest {
         mockBackEnd.enqueue(new MockResponse().setResponseCode(200));
 
         webTestClient.post()
-                .uri("/register")
+                .uri(CONTROLLER_PATH)
                 .bodyValue(dto)
                 .exchange()
                 .expectStatus().isOk()
@@ -109,7 +111,7 @@ class RegisterControllerTest {
         mockBackEnd.enqueue(new MockResponse().setResponseCode(200));
 
         webTestClient.post()
-                .uri("/register")
+                .uri(CONTROLLER_PATH)
                 .bodyValue(dto)
                 .exchange()
                 .expectStatus().is5xxServerError();
@@ -140,7 +142,7 @@ class RegisterControllerTest {
                 .addHeader("Content-Type", "application/json"));
 
         webTestClient.post()
-                .uri("/register")
+                .uri(CONTROLLER_PATH)
                 .bodyValue(dto)
                 .exchange()
                 .expectStatus().is5xxServerError();

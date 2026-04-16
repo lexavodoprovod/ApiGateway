@@ -41,12 +41,12 @@ class AuthenticationFilterTest {
 
     @BeforeEach
     void setup() {
-        routeHandler.isSecured = request -> true;
+        when(routeHandler.isSecured(any())).thenReturn(true);
     }
 
     @Test
     void shouldSkipFilter_WhenRouteIsNotSecured() {
-        routeHandler.isSecured = request -> false;
+        when(routeHandler.isSecured(any())).thenReturn(false);
         when(chain.filter(any())).thenReturn(Mono.empty());
 
 

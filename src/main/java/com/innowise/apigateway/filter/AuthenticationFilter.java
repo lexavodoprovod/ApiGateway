@@ -27,7 +27,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Object> {
         return ((exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
 
-            if(!validRouteHandler.isSecured.test(request)){
+            if(!validRouteHandler.isSecured(request)) {
                 return chain.filter(exchange);
             }
 
