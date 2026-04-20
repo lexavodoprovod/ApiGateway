@@ -13,7 +13,7 @@ spring:
               filters:
                 - AuthenticationFilter
             - id: user-service
-              uri: lb://auth-service
+              uri: lb://user-service
               predicates:
                 - Path=/user/**
               filters:

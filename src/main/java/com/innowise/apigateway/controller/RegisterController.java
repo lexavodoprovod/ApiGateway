@@ -2,7 +2,6 @@ package com.innowise.apigateway.controller;
 
 import com.innowise.apigateway.dto.RegistrationDto;
 import com.innowise.apigateway.dto.UserResponseDto;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +17,7 @@ import static com.innowise.apigateway.constant.Routes.*;
 import static com.innowise.apigateway.constant.ControllerMessage.*;
 
 @RestController
-@RequestMapping(value = "/api/v1/auth/register", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/auth/users", produces = MediaType.APPLICATION_JSON_VALUE)
 public class RegisterController {
 
     private final WebClient webClient;

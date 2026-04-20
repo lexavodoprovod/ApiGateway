@@ -1,5 +1,6 @@
 package com.innowise.apigateway.filter;
 
+import com.innowise.apigateway.config.AuthenticationConfig;
 import com.innowise.apigateway.handler.ValidRouteHandler;
 import com.innowise.apigateway.util.JwtUtil;
 import io.jsonwebtoken.JwtException;
@@ -53,7 +54,7 @@ class AuthenticationFilterTest {
         MockServerHttpRequest request = MockServerHttpRequest.get("/auth/login").build();
         MockServerWebExchange exchange = MockServerWebExchange.from(request);
 
-        Mono<Void> result = filter.apply(new Object()).filter(exchange, chain);
+        Mono<Void> result = filter.apply(new AuthenticationConfig()).filter(exchange, chain);
 
         StepVerifier.create(result).verifyComplete();
         verify(chain).filter(exchange);
@@ -65,7 +66,7 @@ class AuthenticationFilterTest {
         MockServerHttpRequest request = MockServerHttpRequest.get("/users/1").build();
         MockServerWebExchange exchange = MockServerWebExchange.from(request);
 
-        Mono<Void> result = filter.apply(new Object()).filter(exchange, chain);
+        Mono<Void> result = filter.apply(new AuthenticationConfig()).filter(exchange, chain);
 
         StepVerifier.create(result)
                 .expectErrorMatches(throwable -> throwable instanceof ResponseStatusException
@@ -80,7 +81,7 @@ class AuthenticationFilterTest {
                 .build();
         MockServerWebExchange exchange = MockServerWebExchange.from(request);
 
-        Mono<Void> result = filter.apply(new Object()).filter(exchange, chain);
+        Mono<Void> result = filter.apply(new AuthenticationConfig()).filter(exchange, chain);
 
         StepVerifier.create(result)
                 .expectError(ResponseStatusException.class)
@@ -98,7 +99,7 @@ class AuthenticationFilterTest {
 
         doNothing().when(jwtUtil).validateToken(VALID_TOKEN);
 
-        Mono<Void> result = filter.apply(new Object()).filter(exchange, chain);
+        Mono<Void> result = filter.apply(new AuthenticationConfig()).filter(exchange, chain);
 
         StepVerifier.create(result).verifyComplete();
         verify(jwtUtil).validateToken(VALID_TOKEN);
@@ -116,7 +117,7 @@ class AuthenticationFilterTest {
 
         doThrow(new JwtException("Expired")).when(jwtUtil).validateToken(VALID_TOKEN);
 
-        Mono<Void> result = filter.apply(new Object()).filter(exchange, chain);
+        Mono<Void> result = filter.apply(new AuthenticationConfig()).filter(exchange, chain);
 
         StepVerifier.create(result)
                 .expectError(JwtException.class)

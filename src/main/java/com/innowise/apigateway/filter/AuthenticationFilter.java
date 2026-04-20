@@ -1,8 +1,8 @@
 package com.innowise.apigateway.filter;
 
+import com.innowise.apigateway.config.AuthenticationConfig;
 import com.innowise.apigateway.handler.ValidRouteHandler;
 import com.innowise.apigateway.util.JwtUtil;
-import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpHeaders;
@@ -13,8 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 @Component
-@RequiredArgsConstructor
-public class AuthenticationFilter extends AbstractGatewayFilterFactory<Object> {
+public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationConfig> {
 
     private static final String JWT_HEADER_PREFIX = "Bearer ";
 
@@ -22,9 +21,21 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Object> {
     private final JwtUtil jwtUtil;
     private final ValidRouteHandler validRouteHandler;
 
+    public AuthenticationFilter(JwtUtil jwtUtil, ValidRouteHandler validRouteHandler) {
+        super(AuthenticationConfig.class);
+        this.jwtUtil = jwtUtil;
+        this.validRouteHandler = validRouteHandler;
+    }
+
+
     @Override
-    public GatewayFilter apply(Object config) {
+    public GatewayFilter apply(AuthenticationConfig config) {
         return ((exchange, chain) -> {
+
+            if(!config.isEnabled()) {
+                return chain.filter(exchange);
+            }
+
             ServerHttpRequest request = exchange.getRequest();
 
             if(!validRouteHandler.isSecured(request)) {

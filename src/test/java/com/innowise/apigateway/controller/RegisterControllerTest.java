@@ -19,7 +19,7 @@ import static com.innowise.apigateway.constant.ControllerMessage.*;
 
 class RegisterControllerTest {
 
-    private static final String CONTROLLER_PATH = "/api/v1/auth/register";
+    private static final String CONTROLLER_PATH = "/api/v1/auth/users";
 
     private static MockWebServer mockBackEnd;
     private WebTestClient webTestClient;
