@@ -8,7 +8,7 @@ services:
       POSTGRES_DB: ${USER_DB_NAME}
     container_name: users_db_postgres
     ports:
-      - "5433:5432"
+      - "5432:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}" ]
       interval: 5s
@@ -16,6 +16,7 @@ services:
       retries: 5
     networks:
       - micro-net
+
 
   user-redis:
     image: redis:7-alpine
@@ -25,6 +26,7 @@ services:
     networks:
       - micro-net
 
+
   auth-db:
     image: postgres
     environment:
@@ -33,7 +35,25 @@ services:
       POSTGRES_DB: ${AUTH_DB_NAME}
     container_name: credentials_db_postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - micro-net
+
+
+  order-db:
+    image: postgres
+    environment:
+      POSTGRES_USER: ${ORDER_DB_USERNAME}
+      POSTGRES_PASSWORD: ${ORDER_DB_PASSWORD}
+      POSTGRES_DB: ${ORDER_DB_NAME}
+    container_name: orders_db_postgres
+    ports:
+      - "5434:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}" ]
       interval: 5s
@@ -93,7 +113,7 @@ services:
 
   auth-app:
     image: lexavodoprovod/auth-service
-    container_name: auth-service
+    container_name: auth-service-app
     ports:
       - "8082:8080"
     environment:
@@ -109,6 +129,24 @@ services:
       discovery-server:
         condition: service_started
       auth-db:
+        condition: service_healthy
+    networks:
+      - micro-net
+
+  order-app:
+    image: lexavodoprovod/order-service
+    container_name: order-service-app
+    ports:
+      - "8083:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - ORDER_DB_USERNAME=${ORDER_DB_USERNAME}
+      - ORDER_DB_PASSWORD=${ORDER_DB_PASSWORD}
+      - ORDER_DB_NAME=${ORDER_DB_NAME}
+    depends_on:
+      discovery-server:
+        condition: service_started
+      order-db:
         condition: service_healthy
     networks:
       - micro-net
