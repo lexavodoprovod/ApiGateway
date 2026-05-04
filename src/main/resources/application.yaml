@@ -21,3 +21,9 @@ spring:
   security:
     jwt:
       secret_key: ${SECRET_KEY}
+management:
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
