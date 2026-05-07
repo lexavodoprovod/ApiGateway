@@ -70,7 +70,7 @@ services:
       - micro-net
 
 
-  kafka:
+  kafka-service:
     image: confluentinc/cp-kafka:7.5.0
     depends_on:
       - zookeeper
@@ -88,7 +88,7 @@ services:
 #  -------------------------------------------------------------------------------------------------------------
 
   discovery-server:
-    image: lexavodoprovod/discovery-service
+    image: lexavodoprovod/discovery-service:latest
     container_name: discovery-service-app
     ports:
       - "8761:8761"
@@ -96,14 +96,13 @@ services:
       - micro-net
 
   gateway-app:
-    image: lexavodoprovod/api-gateway
+    image: lexavodoprovod/api-gateway:latest
     container_name: api-gateway-app
     ports:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SECRET_KEY=${SECRET_KEY}
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
     depends_on:
       discovery-server:
         condition: service_started
@@ -112,7 +111,7 @@ services:
 
 
   user-app:
-    image: lexavodoprovod/user-service
+    image: lexavodoprovod/user-service:latest
     container_name: user-service-app
     ports:
       - "8081:8080"
@@ -146,7 +145,6 @@ services:
       - SECRET_KEY=${SECRET_KEY}
       - ACCESS_TOKEN_EXPIRATION=${ACCESS_TOKEN_EXPIRATION}
       - REFRESH_TOKEN_EXPIRATION=${REFRESH_TOKEN_EXPIRATION}
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
     depends_on:
       discovery-server:
         condition: service_started
