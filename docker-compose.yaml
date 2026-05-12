@@ -14,8 +14,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    networks:
-      - micro-net
+
 
 
   user-redis:
@@ -23,8 +22,6 @@ services:
     container_name: user-service-redis
     ports:
       - "6379:6379"
-    networks:
-      - micro-net
 
 
   auth-db:
@@ -41,8 +38,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    networks:
-      - micro-net
+
 
 
   order-db:
@@ -59,15 +55,30 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    networks:
-      - micro-net
+
+
+  payment-db:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${PAYMENT_DB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${PAYMENT_DB_PASSWORD}
+      MONGO_INITDB_DATABASE: ${PAYMENT_DB_NAME}
+    container_name: payments-mongo
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
-    networks:
-      - micro-net
+
 
 
   kafka-service:
@@ -79,10 +90,9 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-service:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    networks:
-      - micro-net
+
 
 
 #  -------------------------------------------------------------------------------------------------------------
@@ -92,8 +102,7 @@ services:
     container_name: discovery-service-app
     ports:
       - "8761:8761"
-    networks:
-      - micro-net
+
 
   gateway-app:
     image: lexavodoprovod/api-gateway:latest
@@ -106,8 +115,7 @@ services:
     depends_on:
       discovery-server:
         condition: service_started
-    networks:
-      - micro-net
+
 
 
   user-app:
@@ -128,8 +136,7 @@ services:
         condition: service_healthy
       user-redis:
         condition: service_started
-    networks:
-      - micro-net
+
 
 
   auth-app:
@@ -150,8 +157,7 @@ services:
         condition: service_started
       auth-db:
         condition: service_healthy
-    networks:
-      - micro-net
+
 
   order-app:
     image: lexavodoprovod/order-service
@@ -168,9 +174,18 @@ services:
         condition: service_started
       order-db:
         condition: service_healthy
-    networks:
-      - micro-net
 
-networks:
-  micro-net:
-    driver: bridge
+  payment-service:
+    image: lexavodoprovod/payment-service:latest
+    ports:
+      - "8084:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_USERNAME=${PAYMENT_DB_USERNAME}
+      - DB_PASSWORD=${PAYMENT_DB_PASSWORD}
+      - DB_NAME=${PAYMENT_DB_NAME}
+    depends_on:
+      discovery-server:
+        condition: service_started
+      payment-db:
+        condition: service_healthy
