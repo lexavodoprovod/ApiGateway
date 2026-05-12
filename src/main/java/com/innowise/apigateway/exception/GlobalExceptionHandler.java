@@ -1,6 +1,7 @@
 package com.innowise.apigateway.exception;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -43,6 +45,11 @@ public class GlobalExceptionHandler implements ErrorWebExceptionHandler {
             message = TOKEN_ERROR;
         }
 
+        else if(ex instanceof WebClientResponseException wcex){
+            status = (HttpStatus)wcex.getStatusCode();
+            message = extractMessage(wcex.getResponseBodyAsString());
+        }
+
         response.setStatusCode(status);
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
@@ -62,6 +69,18 @@ public class GlobalExceptionHandler implements ErrorWebExceptionHandler {
                 return bufferFactory.wrap(new byte[0]);
             }
         }));
+    }
+
+    private String extractMessage(String body) {
+        try{
+            JsonNode node = objectMapper.readTree(body);
+            if (node.has("message")) {
+                return node.get("message").asText();
+            }
+        }catch (Exception e){
+            return body;
+        }
+        return body;
     }
 
 }
