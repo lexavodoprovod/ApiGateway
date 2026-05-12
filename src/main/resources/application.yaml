@@ -12,12 +12,12 @@ spring:
                 - Path=/auth/**,/user/**,/cards/**,/admin/**
               filters:
                 - AuthenticationFilter
-            - id: user-service
-              uri: lb://user-service
-              predicates:
-                - Path=/user/**
-              filters:
-                - AuthenticationFilter
+#            - id: user-service
+#              uri: lb://user-service
+#              predicates:
+#                - Path=/user/**
+#              filters:
+#                - AuthenticationFilter
   security:
     jwt:
       secret_key: ${SECRET_KEY}

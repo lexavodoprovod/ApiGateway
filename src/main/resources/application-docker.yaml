@@ -1,7 +1,4 @@
 eureka:
-  instance:
-    prefer-ip-address: false
-    hostname: ${spring.application.name}
   client:
     service-url:
       defaultZone: http://discovery-server:8761/eureka/
