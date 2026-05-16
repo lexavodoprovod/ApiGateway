@@ -1,7 +1,7 @@
 services:
 
   user-db:
-    image: postgres
+    image: postgres:15-alpine
     container_name: users_db_postgres
     environment:
       POSTGRES_USER: ${USER_DB_USERNAME}
@@ -9,6 +9,8 @@ services:
       POSTGRES_DB: ${USER_DB_NAME}
     ports:
       - "5432:5432"
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${USER_DB_USERNAME} -d ${USER_DB_NAME}" ]
       interval: 5s
@@ -22,10 +24,12 @@ services:
     container_name: user-service-redis
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
 
 
   auth-db:
-    image: postgres
+    image: postgres:15-alpine
     environment:
       POSTGRES_USER: ${AUTH_DB_USERNAME}
       POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
@@ -33,6 +37,8 @@ services:
     container_name: credentials_db_postgres
     ports:
       - "5433:5432"
+    volumes:
+      - auth_db_data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${AUTH_DB_USERNAME} -d ${AUTH_DB_NAME}" ]
       interval: 5s
@@ -42,7 +48,7 @@ services:
 
 
   order-db:
-    image: postgres
+    image: postgres:15-alpine
     environment:
       POSTGRES_USER: ${ORDER_DB_USERNAME}
       POSTGRES_PASSWORD: ${ORDER_DB_PASSWORD}
@@ -50,6 +56,8 @@ services:
     container_name: orders_db_postgres
     ports:
       - "5434:5432"
+    volumes:
+      - order_db_data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${ORDER_DB_USERNAME} -d ${ORDER_DB_NAME}" ]
       interval: 5s
@@ -58,7 +66,7 @@ services:
 
 
   payment-db:
-    image: mongo
+    image: mongo:8.0
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${PAYMENT_DB_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${PAYMENT_DB_PASSWORD}
@@ -66,6 +74,8 @@ services:
     container_name: payments-mongo
     ports:
       - "27017:27017"
+    volumes:
+      - payment_db_data:/data/db
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 10s
@@ -189,3 +199,10 @@ services:
         condition: service_started
       payment-db:
         condition: service_healthy
+
+volumes:
+  user_db_data:
+  auth_db_data:
+  redis_data:
+  order_db_data:
+  payment_db_data:
