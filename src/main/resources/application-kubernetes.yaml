@@ -1,6 +1,5 @@
 eureka:
   instance:
-    prefer-ip-address: false
     hostname: ${spring.application.name}
   client:
     service-url:
