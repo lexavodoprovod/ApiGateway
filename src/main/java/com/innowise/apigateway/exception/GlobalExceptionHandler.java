@@ -45,9 +45,9 @@ public class GlobalExceptionHandler implements ErrorWebExceptionHandler {
             message = TOKEN_ERROR;
         }
 
-        else if(ex instanceof WebClientResponseException wcex){
-            status = (HttpStatus)wcex.getStatusCode();
-            message = extractMessage(wcex.getResponseBodyAsString());
+        else if(ex instanceof WebClientResponseException e){
+            status = (HttpStatus)e.getStatusCode();
+            message = extractMessage(e.getResponseBodyAsString());
         }
 
         response.setStatusCode(status);

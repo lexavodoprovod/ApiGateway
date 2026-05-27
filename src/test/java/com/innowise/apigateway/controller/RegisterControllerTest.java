@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
+import java.net.URI;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -38,8 +39,8 @@ class RegisterControllerTest {
         WebClient.Builder webClientBuilder = WebClient.builder()
                 .baseUrl(baseUrl)
                 .filter((request, next) -> {
-                    java.net.URI uri = request.url();
-                    java.net.URI newUri = java.net.URI.create(baseUrl + uri.getPath());
+                    URI uri = request.url();
+                    URI newUri = URI.create(baseUrl + uri.getPath());
                     return next.exchange(ClientRequest.from(request)
                             .url(newUri)
                             .build());

@@ -18,7 +18,6 @@ import static com.innowise.apigateway.constant.TokenInfo.*;
 public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationConfig> {
 
 
-
     private final JwtUtil jwtUtil;
     private final ValidRouteHandler validRouteHandler;
 
